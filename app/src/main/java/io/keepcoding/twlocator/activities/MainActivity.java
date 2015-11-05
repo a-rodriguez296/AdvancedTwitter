@@ -1,7 +1,10 @@
 package io.keepcoding.twlocator.activities;
 
 import android.app.LoaderManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -11,7 +14,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.keepcoding.twlocator.R;
@@ -34,6 +42,7 @@ import twitter4j.Location;
 import twitter4j.OEmbed;
 import twitter4j.PagableResponseList;
 import twitter4j.Place;
+import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.RateLimitStatus;
 import twitter4j.Relationship;
@@ -41,8 +50,10 @@ import twitter4j.ResponseList;
 import twitter4j.SavedSearch;
 import twitter4j.Status;
 import twitter4j.Trends;
+import twitter4j.Twitter;
 import twitter4j.TwitterAPIConfiguration;
 import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 import twitter4j.TwitterListener;
 import twitter4j.TwitterMethod;
 import twitter4j.User;
@@ -58,6 +69,10 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
     ConnectTwitterTask twitterTask;
     private static final int URL_LOADER = 0;
 
+    MapFragment mapFragment;
+    GoogleMap map;
+
+
     @Bind(R.id.button)
     Button button;
     private final LoaderManager loaderManager = getLoaderManager();
@@ -68,6 +83,9 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        map = mapFragment.getMap();
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
@@ -83,7 +101,11 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                launchTwitter();
+//                launchTwitter();
+                Intent mapIntent = new Intent(MainActivity.this, MapActivity.class);
+                startActivity(mapIntent);
+
+
             }
         });
 
@@ -92,7 +114,24 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
     }
 
     private void launchTwitter() {
+
         AsyncTwitter twitter = new TwitterHelper(this).getAsyncTwitter();
+        /*Twitter twitter = TwitterFactory.getSingleton();*/
+
+
+
+        Query query = new Query().geoCode(new GeoLocation(4.646, -74.05), 10, String.valueOf(Query.KILOMETERS));
+/*
+        try {
+            QueryResult result = twitter.search(query);
+            for (Status status : result.getTweets()) {
+                System.out.println("@" + status.getUser().getScreenName() + ":" + status.getText());
+            }
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }*/
+
+
         twitter.addListener(new TwitterListener() {
             @Override
             public void gotMentions(ResponseList<Status> statuses) {
@@ -158,7 +197,9 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
 
             @Override
             public void searched(QueryResult queryResult) {
-
+                for (Status status : queryResult.getTweets()) {
+                    System.out.println("@" + status.getUser().getScreenName() + ":" + status.getText());
+                }
             }
 
             @Override
@@ -568,15 +609,21 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
 
             @Override
             public void onException(TwitterException te, TwitterMethod method) {
-
+Log.d("Twitter", "Hola");
             }
         });
-        twitter.getHomeTimeline();
+        twitter.search(query);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
+
 
         return super.onCreateOptionsMenu(menu);
     }
