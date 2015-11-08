@@ -89,4 +89,12 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    public static Date convertLongToDate(Long dateAsLong) {
+        if (dateAsLong == null) {
+            return null;
+        }
+        return new Date(dateAsLong);
+    }
+
+
 }

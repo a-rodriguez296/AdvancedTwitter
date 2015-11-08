@@ -1,6 +1,8 @@
 package io.keepcoding.twlocator.activities;
 
 import android.app.LoaderManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -8,7 +10,10 @@ import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,8 +39,10 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.keepcoding.twlocator.R;
+import io.keepcoding.twlocator.model.Tweet;
 import io.keepcoding.twlocator.model.dao.TweetDao;
 import io.keepcoding.twlocator.provider.TwLocatorProvider;
+import io.keepcoding.twlocator.provider.TwLocatorProviderHelper;
 import io.keepcoding.twlocator.services.TwitterServices;
 import io.keepcoding.twlocator.util.NetworkHelper;
 import io.keepcoding.twlocator.util.twitter.ConnectTwitterTask;
@@ -43,7 +50,7 @@ import twitter4j.GeoLocation;
 import twitter4j.Status;
 
 
-public class MainActivity extends ActionBarActivity implements ConnectTwitterTask.OnConnectTwitterListener, LoaderManager.LoaderCallbacks<Cursor>, TwitterServices.TweetsListener {
+public class MainActivity extends AppCompatActivity implements ConnectTwitterTask.OnConnectTwitterListener, LoaderManager.LoaderCallbacks<Cursor>, TwitterServices.TweetsListener, SearchView.OnQueryTextListener {
 
     ConnectTwitterTask twitterTask;
     private static final int URL_LOADER = 0;
@@ -111,48 +118,17 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
                 this); //Delegado
     }
 
- /*   private void launchTwitter(GeoLocation geoLocation) {
 
-        AsyncTwitter twitter = new TwitterHelper(this).getAsyncTwitter();
-
-        TwitterListener listener = new TwitterAdapter(){
-
-            @Override
-            public void searched(QueryResult queryResult) {
-                super.searched(queryResult);
-                    for (Status s: queryResult.getTweets()) {
-                        Log.d("", s.getText() + " " + s.getGeoLocation());
-
-
-
-                    }
-
-
-            }
-
-            @Override
-            public void onException(TwitterException te, TwitterMethod method) {
-                super.onException(te, method);
-            }
-        };
-
-        twitter.addListener(listener);
-
-        Query query = new Query();
-
-        query.geoCode(geoLocation, 10, Query.KILOMETERS.name());
-        query.setCount(20);
-        twitter.search(query);
-    }*/
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        SearchView searchView = (SearchView) menu.findItem(R.id.options_menu_main_search).getActionView();
-//        searchView.setSearchableInfo( searchManager.getSearchableInfo( getComponentName() ) );
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.options_menu_main_search));
+        searchView.setSearchableInfo( searchManager.getSearchableInfo( getComponentName() ) );
+        searchView.setOnQueryTextListener(this);
 
 
         return super.onCreateOptionsMenu(menu);
@@ -227,17 +203,16 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
 
                     if (s.getGeoLocation() != null ){
 
-//                        ImageView imageView = new ImageView(MainActivity.this);
-//                        Picasso.with(MainActivity.this).load(s.getUser().getBiggerProfileImageURLHttps()).into(imageView);
-//
-//                        imageView.buildDrawingCache();
-//                        Bitmap bmap = imageView.getDrawingCache();
 
                         map.addMarker(new MarkerOptions()
                                 .position(new LatLng(s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude()))
                                 .title(s.getText()));
 
 
+                        TwLocatorProviderHelper.deleteAllTweets();
+
+                        final Tweet tweetToAdd = new Tweet(s.getText(), s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude());
+                        TwLocatorProviderHelper.insertTweet(tweetToAdd);
                     }
 
                 }
@@ -252,5 +227,16 @@ public class MainActivity extends ActionBarActivity implements ConnectTwitterTas
     }
 
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        Toast.makeText(this, "You're submiting for " + query, Toast.LENGTH_LONG).show();
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        //Toast.makeText(this, "You're loking for " + newText, Toast.LENGTH_LONG).show();
+        return false;
+    }
 }
 

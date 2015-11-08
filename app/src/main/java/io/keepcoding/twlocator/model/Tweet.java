@@ -21,11 +21,11 @@ public class Tweet {
     private Date modificationDate;
 
 
-    public Tweet(long id, String text, GeoLocation location) {
-        this.id = id;
+    public Tweet( String text, double latitude, double longitude) {
+
         this.text = text;
-        this.latitude = location.getLatitude();
-        this.longitude = location.getLongitude();
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
 

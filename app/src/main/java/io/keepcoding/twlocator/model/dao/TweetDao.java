@@ -1,6 +1,8 @@
 package io.keepcoding.twlocator.model.dao;
 
 import android.content.ContentValues;
+import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import static io.keepcoding.twlocator.model.db.DBConstants.*;
 
@@ -23,7 +25,22 @@ public class TweetDao {
 
     };
 
+    @NonNull
+    public static Tweet tweetFromCursor(Cursor cursor) {
+        Tweet tweet = new Tweet(cursor.getString(cursor.getColumnIndex(KEY_TWEET_TEXT)),
+                cursor.getDouble(cursor.getColumnIndex(KEY_TWEET_LATITUDE)),
+                cursor.getDouble(cursor.getColumnIndex(KEY_TWEET_LONGITUDE)));
 
+        tweet.setId(cursor.getLong(cursor.getColumnIndex(KEY_TWEET_ID)));
+
+        long creationDate = cursor.getLong(cursor.getColumnIndex(KEY_TWEET_CREATION_DATE));
+        tweet.setCreationDate(DBHelper.convertLongToDate(creationDate));
+
+        long modificationDate = cursor.getLong(cursor.getColumnIndex(KEY_TWEET_MODIFICATION_DATE));
+        tweet.setModificationDate(DBHelper.convertLongToDate(modificationDate));
+
+        return tweet;
+    }
 
     public static ContentValues getContentValues(Tweet tweet) {
 
