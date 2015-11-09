@@ -18,7 +18,7 @@ public class TweetDao {
             KEY_TWEET_TEXT,
             KEY_TWEET_CREATION_DATE,
             KEY_TWEET_MODIFICATION_DATE,
-
+            KEY_TWEET_IMAGE_URL,
             KEY_TWEET_LONGITUDE,
             KEY_TWEET_LATITUDE,
 
@@ -29,7 +29,8 @@ public class TweetDao {
     public static Tweet tweetFromCursor(Cursor cursor) {
         Tweet tweet = new Tweet(cursor.getString(cursor.getColumnIndex(KEY_TWEET_TEXT)),
                 cursor.getDouble(cursor.getColumnIndex(KEY_TWEET_LATITUDE)),
-                cursor.getDouble(cursor.getColumnIndex(KEY_TWEET_LONGITUDE)));
+                cursor.getDouble(cursor.getColumnIndex(KEY_TWEET_LONGITUDE)),
+                cursor.getString(cursor.getColumnIndex(KEY_TWEET_IMAGE_URL)));
 
         tweet.setId(cursor.getLong(cursor.getColumnIndex(KEY_TWEET_ID)));
 
@@ -58,6 +59,7 @@ public class TweetDao {
         content.put(KEY_TWEET_TEXT, tweet.getText());
         content.put(KEY_TWEET_CREATION_DATE, DBHelper.convertDateToLong(tweet.getCreationDate()));
         content.put(KEY_TWEET_MODIFICATION_DATE, DBHelper.convertDateToLong(tweet.getModificationDate()));
+        content.put(KEY_TWEET_IMAGE_URL, tweet.getImageURL());
         content.put(KEY_TWEET_LATITUDE, String.format("%f", tweet.getLatitude()));
         content.put(KEY_TWEET_LONGITUDE, String.format("%f", tweet.getLongitude()));
 

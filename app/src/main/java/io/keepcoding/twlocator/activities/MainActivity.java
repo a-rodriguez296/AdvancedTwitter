@@ -69,12 +69,9 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         if (NetworkHelper.isNetworkConnectionOK(new WeakReference<>(getApplication()))) {
-//            twitterTask = new ConnectTwitterTask(this);
-//            twitterTask.setListener(this);
-//
-//            twitterTask.execute();
-            Intent listIntent = new Intent(this, TweetsListsActivity.class);
-            startActivity(listIntent);
+            twitterTask = new ConnectTwitterTask(this);
+            twitterTask.setListener(this);
+            twitterTask.execute();
 
         } else {
             Toast.makeText(this, getString(R.string.error_network), Toast.LENGTH_LONG).show();
@@ -197,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
                 for (Status s : tweets) {
 
                     if (s.getGeoLocation() != null ){
-                        final Tweet tweetToAdd = new Tweet(s.getText(), s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude());
+                        final Tweet tweetToAdd = new Tweet(s.getText(), s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude(), s.getUser().getProfileImageURL());
                         TwLocatorProviderHelper.insertTweet(tweetToAdd);
                     }
                 }

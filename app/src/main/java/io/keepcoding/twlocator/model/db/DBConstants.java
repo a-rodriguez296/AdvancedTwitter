@@ -14,6 +14,7 @@ public class DBConstants {
     public static final String KEY_TWEET_MODIFICATION_DATE = "modificationDate";
     public static final String KEY_TWEET_LATITUDE = "latitude";
     public static final String KEY_TWEET_LONGITUDE = "longitude";
+    public static final String KEY_TWEET_IMAGE_URL = "imageURL";
 
     public static final String SQL_CREATE_TWEET_TABLE =
             "create table "
@@ -22,6 +23,7 @@ public class DBConstants {
                     + KEY_TWEET_TEXT + " text not null, "
                     + KEY_TWEET_CREATION_DATE + " INTEGER, "
                     + KEY_TWEET_MODIFICATION_DATE + " INTEGER, "
+                    + KEY_TWEET_IMAGE_URL + " text not null, "
                     + KEY_TWEET_LONGITUDE + " real, "
                     + KEY_TWEET_LATITUDE + " real "
                     + ");";

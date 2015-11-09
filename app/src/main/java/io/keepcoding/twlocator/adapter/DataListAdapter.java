@@ -58,7 +58,7 @@ public class DataListAdapter extends CursorAdapter {
 
         Tweet tweet = TweetDao.tweetFromCursor(cursor);
         txtTweet.setText(tweet.getText());
-        Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(imgTweet);
+        Picasso.with(context).load(tweet.getImageURL()).into(imgTweet);
 
     }
 }

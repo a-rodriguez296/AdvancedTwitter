@@ -21,11 +21,16 @@ public class Tweet {
     private Date modificationDate;
 
 
-    public Tweet( String text, double latitude, double longitude) {
+
+    private String imageURL;
+
+
+    public Tweet( String text, double latitude, double longitude, String imageURL) {
 
         this.text = text;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.imageURL = imageURL;
     }
 
 
@@ -75,6 +80,14 @@ public class Tweet {
 
     public void setModificationDate(Date modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
 
     @Override
