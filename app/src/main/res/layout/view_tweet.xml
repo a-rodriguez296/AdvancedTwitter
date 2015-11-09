@@ -3,16 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+                android:background="@color/background_material_light"
     android:id="@+id/view_notebook">
 
 
 
     <!--Con tools se hace para que se muestre solo en diseño pero no en ejecucion-->
 
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/imageView"/>
+
     <TextView
         android:id="@+id/text_tweet"
+        android:background="@color/background_material_light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
          />
 
 </RelativeLayout>

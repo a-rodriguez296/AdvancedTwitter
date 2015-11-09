@@ -4,39 +4,31 @@ import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.keepcoding.twlocator.R;
 import io.keepcoding.twlocator.model.Tweet;
@@ -77,13 +69,17 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         if (NetworkHelper.isNetworkConnectionOK(new WeakReference<>(getApplication()))) {
-            twitterTask = new ConnectTwitterTask(this);
-            twitterTask.setListener(this);
+//            twitterTask = new ConnectTwitterTask(this);
+//            twitterTask.setListener(this);
+//
+//            twitterTask.execute();
+            Intent listIntent = new Intent(this, TweetsListsActivity.class);
+            startActivity(listIntent);
 
-            twitterTask.execute();
         } else {
             Toast.makeText(this, getString(R.string.error_network), Toast.LENGTH_LONG).show();
-
+            Intent listIntent = new Intent(this, TweetsListsActivity.class);
+            startActivity(listIntent);
         }
 
         twitterServices = TwitterServices.getInstance(MainActivity.this);

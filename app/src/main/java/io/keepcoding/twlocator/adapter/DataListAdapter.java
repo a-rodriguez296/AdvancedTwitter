@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -21,6 +24,9 @@ public class DataListAdapter extends CursorAdapter {
 
     @Bind(R.id.text_tweet)
     TextView txtTweet;
+
+    @Bind(R.id.imageView)
+    ImageView imgTweet;
 
 
     private Cursor dataCursor;
@@ -52,6 +58,7 @@ public class DataListAdapter extends CursorAdapter {
 
         Tweet tweet = TweetDao.tweetFromCursor(cursor);
         txtTweet.setText(tweet.getText());
+        Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(imgTweet);
 
     }
 }
