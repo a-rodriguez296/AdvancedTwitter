@@ -53,16 +53,13 @@ import twitter4j.Status;
 public class MainActivity extends AppCompatActivity implements ConnectTwitterTask.OnConnectTwitterListener, LoaderManager.LoaderCallbacks<Cursor>, TwitterServices.TweetsListener, SearchView.OnQueryTextListener {
 
     ConnectTwitterTask twitterTask;
+    private TwitterServices twitterServices;
     private static final int URL_LOADER = 0;
 
     MapFragment mapFragment;
     GoogleMap map;
 
-    @Bind(R.id.editText)
-    EditText mEditText;
 
-    @Bind(R.id.button)
-    Button button;
     private final LoaderManager loaderManager = getLoaderManager();
 
 
@@ -89,30 +86,7 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
 
         }
 
-        final TwitterServices twitterServices = TwitterServices.getInstance(MainActivity.this);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GeoLocation geoLocation = performSearch(mEditText.getText().toString());
-
-                CameraUpdate center =
-                        CameraUpdateFactory.newLatLng(new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude()));
-                CameraUpdate zoom = CameraUpdateFactory.zoomTo(13);
-
-                map.moveCamera(center);
-                map.animateCamera(zoom);
-
-
-                twitterServices.searchTweet(geoLocation);
-
-
-//                Intent mapIntent = new Intent(MainActivity.this, MapActivity.class);
-//                startActivity(mapIntent);
-
-
-            }
-        });
+        twitterServices = TwitterServices.getInstance(MainActivity.this);
 
         loaderManager.initLoader(0, null,//Bundle parámetro
                 this); //Delegado
@@ -127,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.options_menu_main_search));
-        searchView.setSearchableInfo( searchManager.getSearchableInfo( getComponentName() ) );
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextListener(this);
 
 
@@ -199,6 +173,9 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
 
         this.runOnUiThread(new Runnable() {
             public void run() {
+
+                TwLocatorProviderHelper.deleteAllTweets();
+
                 for (Status s : tweets) {
 
                     if (s.getGeoLocation() != null ){
@@ -207,29 +184,57 @@ public class MainActivity extends AppCompatActivity implements ConnectTwitterTas
                         map.addMarker(new MarkerOptions()
                                 .position(new LatLng(s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude()))
                                 .title(s.getText()));
-
-
-                        TwLocatorProviderHelper.deleteAllTweets();
-
-                        final Tweet tweetToAdd = new Tweet(s.getText(), s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude());
-                        TwLocatorProviderHelper.insertTweet(tweetToAdd);
                     }
 
                 }
+                saveTweets(tweets);
             }
         });
+    }
 
+
+    public void saveTweets(final List<Status> tweets){
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                for (Status s : tweets) {
+
+                    if (s.getGeoLocation() != null ){
+                        final Tweet tweetToAdd = new Tweet(s.getText(), s.getGeoLocation().getLatitude(), s.getGeoLocation().getLongitude());
+                        TwLocatorProviderHelper.insertTweet(tweetToAdd);
+                    }
+                }
+            }
+        };
+
+        new Thread(runnable).start();
 
     }
 
     public void tweetsDidFailLoading() {
+
 
     }
 
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Toast.makeText(this, "You're submiting for " + query, Toast.LENGTH_LONG).show();
+       //Borrar markers del mapa si hay
+        map.clear();
+
+        //Hacer la geolocation inversa del texto
+        GeoLocation geoLocation = performSearch(query);
+
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude()));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(13);
+
+        map.moveCamera(center);
+        map.animateCamera(zoom);
+
+
+        twitterServices.searchTweet(geoLocation);
+
         return false;
     }
 
